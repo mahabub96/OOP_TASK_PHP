@@ -1,6 +1,10 @@
 <?php 
 class book{
-    private $title, $author, $price, $isbn;
+    private $title, $author, $isbn;
+
+    private float $price;
+
+    private float $discountedPrice;
 
     public function __construct($title, $author, $price, $isbn){
         $this->title = $title;
@@ -15,9 +19,14 @@ class book{
     }
 
     public function applyDiscount($percentages){
-        $cprice = $this->price;
-        $price = abs((($cprice*$percentages)/100)-$cprice);
-        return $price;
+        //$this->discountedPrice = ($this->price)-($this->price-(($percentages*$this->price)/100));
+        $this->discountedPrice = ($this->price / 100)*$percentages;
+
+        $this->price -=$this->discountedPrice;
+    }
+
+    public function getDprice(){
+        return $this->discountedPrice;
     }
 
     public function getPrice(){
