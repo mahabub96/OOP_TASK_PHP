@@ -1,7 +1,7 @@
 <?php
 namespace App\Controllers;
 
-class ProductController {
+class User {
     public function index() {
         return "ProductController index";
     }
