@@ -2,12 +2,11 @@
 
 namespace App\Users;
 
-class Customer extends User
+class Admin extends User
 {
     public function getRole(): string
     {
-        return 'customer';
+        return 'admin';
     }
 }
-
 ?>

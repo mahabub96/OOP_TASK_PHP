@@ -1,90 +1,104 @@
 <?php
-    require_once __DIR__ . '/autoload.php';
-    use App\Database;
-    use App\Cart;
-    use App\Order;
-    use App\Payments\PaymentFactory;
-    use App\Products\PhysicalProduct;
-    use App\Products\DigitalProduct;
-    use App\Users\Customer;
-    use App\Repositories\ProductRepository;
-    use App\Repositories\UserRepository;
-    use App\Repositories\OrderRepository;
 
+require __DIR__ . '/autoload.php';
 
-    const br = "<br>";
+use App\Database;
+use App\Repositories\UserRepository;
+use App\Repositories\ProductRepository;
+use App\Repositories\OrderRepository;
+use App\Auth\AuthService;
+use App\Cart;
+use App\Products\PhysicalProduct;
+use App\Payments\PaymentFactory;
+use App\Order;
 
-   //Database connection
+const BR = '<br>';
 
-   $db = new Database(
+// DATABASE
+
+$db = new Database(
     host: 'localhost',
     username: 'root',
-    database: 'ecommerce',
-    password: ''
-   );
+    password: '',
+    database: 'ecommerce'
+);
 
-   $pdo = $db->connect();
+$pdo = $db->connect();
 
+// REPOSITORIES
 
-   //Repositories
+$userRepository    = new UserRepository($pdo);
+$productRepository = new ProductRepository($pdo);
+// Fix: Pass UserRepository to OrderRepository for proper user hydration
+$orderRepository   = new OrderRepository($pdo, $productRepository, $userRepository);
+$authService       = new AuthService($userRepository);
 
-   $productRepo = new ProductRepository($pdo);
-   $userRepo = new UserRepository($pdo);
-   $orderRepo = new OrderRepository($pdo, $productRepo);
+// REGISTER USER (idempotent)
 
-   //user
+echo 'Registering user...' . BR;
 
-   $user = new Customer('Fahim','fahim@gmail.com');
-   $userRepo->save($user);
+// Fix: Avoid duplicate email error by reusing existing user if present
+$existing = $userRepository->findByEmail('john@example.com');
+if ($existing) {
+    $user = $existing;
+    echo 'User already exists with ID: ' . $user->getId() . BR;
+} else {
+    // Ensure password is provided to match updated User constructor and schema
+    $user = $authService->register(
+        name: 'John Doe',
+        email: 'john@example.com',
+        password: 'secret123',
+        role: 'customer'
+    );
+    echo 'User registered with ID: ' . $user->getId() . BR;
+}
 
-   $laptop = new PhysicalProduct('Laptop',1000.00,2.5);
-   $ebook = new DigitalProduct('PHP Ebook',30.00,'https://download.com/php');
+// LOGIN USER
 
-   $productRepo->save($laptop);
-   $productRepo->save($ebook);
+echo 'Logging in...' . BR;
 
-   echo "Products created".br;
+$loggedInUser = $authService->login(
+    email: 'john@example.com',
+    password: 'secret123'
+);
 
+echo 'Logged in as: ' . $loggedInUser->getName() . ' (' . $loggedInUser->getRole() . ')' . BR;
 
-   //cart
+// CART
 
-   $cart = new Cart();
-   $cart->addItem($laptop,1);
-   $cart->addItem($ebook,2);
+$cart = new Cart();
 
-   $cart->applyDiscountCode('SAVE10');
+// Fix: Persist products to assign real IDs and satisfy FK constraints
+$product1 = new PhysicalProduct('Laptop', 1200.00, 2.5);
+$productRepository->save($product1);
 
-   echo "Cart subtotal: {$cart->getSubtotal()}".br;
-   echo "Cart Total: {$cart->getTotal()}".br;
+$product2 = new PhysicalProduct('Mouse', 50.00, 0.2);
+$productRepository->save($product2);
 
-   //order
+$cart->addItem($product1, 1);
+$cart->addItem($product2, 2);
 
-   $order = new order($user, $cart);
+$cart->applyDiscountCode('SAVE10');
 
-   //payment
-   $payment = PaymentFactory::create('paypal');
+echo 'Cart total: ' . $cart->getTotal() . BR;
 
-   if($order->pay($payment)){
-    echo 'Payment Successful'.br;
-   }
+// ORDER
 
-   //saveorder
+$order = new Order($loggedInUser, $cart);
 
-   $orderRepo->save($order);
+$payment = PaymentFactory::create('paypal');
+$order->pay($payment);
 
-   echo "Order saved with ID: {$order->getId()}".br;
+$orderRepository->save($order);
 
-   //show order
-   $fetchedOrder = $orderRepo->find($order->getId());
-   if($fetchedOrder){
-    echo "Order fetched successfully".br;
-    echo "Order status: " . $fetchedOrder->getStatus() .br;
-    echo "Order total: " . $fetchedOrder->getTotalAmount() .br;
-   }
+echo 'Order placed successfully! Order ID: ' . $order->getId() . BR;
 
+// FETCH ORDER
 
+$fetchedOrder = $orderRepository->find($order->getId());
 
-
-
-
-?>
+if ($fetchedOrder) {
+    echo 'Order fetched successfully' . BR;
+    echo 'Order status: ' . $fetchedOrder->getStatus() . BR;
+    echo 'Order total: ' . $fetchedOrder->getTotalAmount() . BR;
+}

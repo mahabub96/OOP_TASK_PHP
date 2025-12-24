@@ -1,40 +1,48 @@
-<?php 
+<?php
+
 namespace App\Users;
 
-use App\Interfaces\UserRole;
+use App\Interfaces\Authenticable;
 use App\Traits\HasId;
-use InvalidArgumentException;
 
-abstract class User implements UserRole{
+abstract class User implements Authenticable
+{
     use HasId;
 
     protected string $name;
     protected string $email;
+    protected string $password;
 
-    public function __construct(string $name, string $email){
-        if($name === ''){
-            throw new InvalidArgumentException('Name cannot be empty.');
-        }
-
-        if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
-            throw new InvalidArgumentException('Invalid email address');
-        }
-
+    // Fix: Support hydration with already-hashed passwords via $isHashed flag
+    public function __construct(string $name, string $email, string $password, bool $isHashed = false)
+    {
         $this->name = $name;
         $this->email = $email;
+        $this->password = $isHashed ? $password : password_hash($password, PASSWORD_DEFAULT);
     }
 
-    // Fix: Correct typos ($htis -> $this) and add return type hints
-    public function getName(): string {
-        return $this->name;
-    }
-    
-    // Fix: Correct typos ($htis -> $this) and add return type hints
-    public function getEmail(): string {
+    abstract public function getRole(): string;
+
+    public function getEmail(): string
+    {
         return $this->email;
     }
 
-    
-    abstract public function getRole(): string;
+    public function getPassword(): string
+    {
+        return $this->password;
+    }
+
+    public function verifyPassword(string $password): bool
+    {
+        return password_verify($password, $this->password);
+    }
+
+    // Fix: Add missing name accessor used by repositories and views
+    public function getName(): string
+    {
+        return $this->name;
+    }
 }
+
 ?>

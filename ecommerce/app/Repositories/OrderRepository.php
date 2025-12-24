@@ -6,19 +6,23 @@ use Exception;
 use App\Order;
 use App\Cart;
 use App\Users\User;
-use App\Users\Customer; // Fix: Import concrete Customer to avoid instantiating abstract User
+use App\Users\Customer;
 use App\Products\Product;
 use App\Repositories\ProductRepository;
+use App\Repositories\UserRepository; // Fix: Inject UserRepository to hydrate real user details
 
 class OrderRepository
 {
     private PDO $pdo;
     private ProductRepository $productRepository;
+    private UserRepository $userRepository; // Fix: Store UserRepository for user hydration
 
-    public function __construct(PDO $pdo, ProductRepository $productRepository)
+    // Fix: Accept UserRepository in constructor for proper user hydration
+    public function __construct(PDO $pdo, ProductRepository $productRepository, UserRepository $userRepository)
     {
         $this->pdo = $pdo;
         $this->productRepository = $productRepository;
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -92,9 +96,14 @@ class OrderRepository
      */
     private function hydrate(array $orderRow): Order
     {
-        // Fix: Instantiate a concrete Customer (User is abstract) and set the ID
-        $user = new Customer('Guest', 'guest@example.com');
-        $user->setId((int)$orderRow['user_id']);
+        // Fix: Hydrate the real user via UserRepository instead of placeholder data
+        $user = $this->userRepository->find((int)$orderRow['user_id']);
+        if (!$user) {
+            // Fallback: create a minimal customer with placeholder password
+            // (ensures non-null user if the referenced user was deleted)
+            $user = new Customer('Guest', 'guest@example.com', 'guest');
+            $user->setId((int)$orderRow['user_id']);
+        }
 
         // Create empty cart
         $cart = new Cart();

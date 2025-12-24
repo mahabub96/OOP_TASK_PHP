@@ -1,14 +1,16 @@
 CREATE DATABASE IF NOT EXISTS ecommerce;
 USE ecommerce;
 
--- Fix: Remove UNIQUE constraint on users.name to allow duplicate names
+-- USERS
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
     role VARCHAR(20) NOT NULL
 );
 
+-- PRODUCTS
 CREATE TABLE IF NOT EXISTS products (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
@@ -18,6 +20,7 @@ CREATE TABLE IF NOT EXISTS products (
     download_link VARCHAR(255) NULL
 );
 
+-- ORDERS
 CREATE TABLE IF NOT EXISTS orders (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -27,6 +30,7 @@ CREATE TABLE IF NOT EXISTS orders (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+-- ORDER ITEMS
 CREATE TABLE IF NOT EXISTS order_items (
     id INT AUTO_INCREMENT PRIMARY KEY,
     order_id INT NOT NULL,
