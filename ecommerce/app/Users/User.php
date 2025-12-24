@@ -24,12 +24,14 @@ abstract class User implements UserRole{
         $this->email = $email;
     }
 
-    public function getName(){
-        return $htis->name;
+    // Fix: Correct typos ($htis -> $this) and add return type hints
+    public function getName(): string {
+        return $this->name;
     }
     
-    public function getEmail(){
-        return $htis->email;
+    // Fix: Correct typos ($htis -> $this) and add return type hints
+    public function getEmail(): string {
+        return $this->email;
     }
 
     

@@ -11,12 +11,13 @@ abstract class Product implements Purchasable{
     protected string $name;
     protected float $price;
 
+    // Fix: Correct error message typos in validation exceptions
     public function __construct(string $name, float $price){
         if($name === ''){
-            throw new InvalidArgumentException('Product name can not be emplty');
+            throw new InvalidArgumentException('Product name cannot be empty');
         }
         if($price<0){
-            throw new InvalidArgumentException('Product price canot be negative');
+            throw new InvalidArgumentException('Product price cannot be negative');
         }
 
         $this->name = $name;

@@ -1,51 +1,52 @@
-<?php 
+<?php
 namespace App;
-use App\Interfaces\Purchasable;
+
+use App\Products\Product;
 use InvalidArgumentException;
 
 class Cart {
-   /** 
-    *@var Purchasable[]
-    */
 
     private array $items = [];
-
     private float $taxRate = 0.10;
     private float $discount = 0.0;
 
-    public function addItem(Purchasable $item): void{
-        $this->items[] = $item;
-    }
-
-    public function removeItem(int $index): void{
-        if(!isset($this->items[$index])){
-            throw new InvalidArgumentException('Item does not exist in cart');
+    public function addItem(Product $product, int $quantity = 1): void {
+        if ($quantity <= 0) {
+            throw new InvalidArgumentException('Quantity must be greater than 0');
         }
 
-        unset($this->items[$index]);
-        $this->items = array_values($this->items);
+        $id = $product->getId();
+
+        if (isset($this->items[$id])) {
+            $this->items[$id]['quantity'] += $quantity;
+        } else {
+            $this->items[$id] = [
+                'product' => $product,
+                'quantity' => $quantity
+            ];
+        }
     }
 
-    /**
-     * @return Purchasable[]
-     */
+    public function removeItem(int $productId): void {
+        unset($this->items[$productId]);
+    }
 
-    public function getItems(): array{
+    public function getItems(): array {
         return $this->items;
     }
 
     public function getSubtotal(): float {
-        $subtotal = 0.00;
+        $subtotal = 0.0;
 
-        foreach($this->items as $item){
-            $subtotal += $item->getPrice();
+        foreach ($this->items as $item) {
+            $subtotal += $item['product']->getPrice() * $item['quantity'];
         }
 
         return $subtotal;
     }
 
-    public function applyDiscountCode(string $code):void{
-        if($code === 'SAVE10'){
+    public function applyDiscountCode(string $code): void {
+        if ($code === 'SAVE10') {
             $this->discount = 0.10;
             return;
         }
@@ -53,13 +54,11 @@ class Cart {
         throw new InvalidArgumentException('Invalid discount code');
     }
 
-    public function getTotal(): float{
+    public function getTotal(): float {
         $subtotal = $this->getSubtotal();
-        $tax = $this->taxRate * $subtotal;
-        $discount = $subtotal *$this->discount;
+        $tax = $subtotal * $this->taxRate;
+        $discount = $subtotal * $this->discount;
 
         return ($subtotal + $tax) - $discount;
     }
-
 }
-?>

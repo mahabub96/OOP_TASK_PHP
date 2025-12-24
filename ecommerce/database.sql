@@ -1,9 +1,10 @@
 CREATE DATABASE IF NOT EXISTS ecommerce;
 USE ecommerce;
 
+-- Fix: Remove UNIQUE constraint on users.name to allow duplicate names
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50) NOT NULL UNIQUE,
+    name VARCHAR(50) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     role VARCHAR(20) NOT NULL
 );
