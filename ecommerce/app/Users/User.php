@@ -13,7 +13,6 @@ abstract class User implements Authenticable
     protected string $email;
     protected string $password;
 
-    // Fix: Support hydration with already-hashed passwords via $isHashed flag
     public function __construct(string $name, string $email, string $password, bool $isHashed = false)
     {
         $this->name = $name;
@@ -38,7 +37,6 @@ abstract class User implements Authenticable
         return password_verify($password, $this->password);
     }
 
-    // Fix: Add missing name accessor used by repositories and views
     public function getName(): string
     {
         return $this->name;

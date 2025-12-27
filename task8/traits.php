@@ -37,9 +37,6 @@ trait SoftDeletable{
     public function isDeleted(): bool {
         return $this->deletedAt !== null;
     }
-    // public function isDeleted(){
-    //     return $this->deletedAt?->format('Y-m-d H:i:s');
-    // }
 }
 
 class Post{
@@ -80,9 +77,6 @@ class Post{
 
 class Comment{
     use Timestampable, SoftDeletable;
-
-    // private static int $nextId = 1;
-    // private int $id;
 
     private int $postId;
     private string $comment;

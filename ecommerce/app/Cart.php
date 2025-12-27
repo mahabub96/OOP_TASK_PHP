@@ -14,7 +14,6 @@ class Cart {
         if ($quantity <= 0) {
             throw new InvalidArgumentException('Quantity must be greater than 0');
         }
-        // Fix: Ensure product has a persisted ID to avoid null-key collisions
         $id = $product->getId();
         if ($id === null) {
             throw new InvalidArgumentException('Product must have an ID before adding to cart');

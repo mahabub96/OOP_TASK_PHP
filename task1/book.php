@@ -19,7 +19,6 @@ class book{
     }
 
     public function applyDiscount($percentages){
-        //$this->discountedPrice = ($this->price)-($this->price-(($percentages*$this->price)/100));
         $this->discountedPrice = ($this->price / 100)*$percentages;
 
         $this->price -=$this->discountedPrice;

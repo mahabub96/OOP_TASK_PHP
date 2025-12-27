@@ -7,7 +7,6 @@ $bookC = new book("The Cure","Black Mizan",75,"56789");
 $d=10;
 
 echo $BookA->getDetails();
-//echo  "Current Price ".$BookA->getPrice()."<br>";
 $BookA->applyDiscount($d);
 echo "Discounted ammount : ".$BookA->getDprice()."<br>";
 echo "Price After ".$d."% Discount : ".$BookA->getPrice()."<br>";

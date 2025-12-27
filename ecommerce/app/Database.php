@@ -26,7 +26,6 @@ class Database
     }
 
     /**
-     *
      * @return PDO
      */
     public function connect(): PDO
@@ -37,7 +36,6 @@ class Database
                 $this->connection = new PDO($dsn, $this->username, $this->password);
                 $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             } catch (PDOException $e) {
-                // Handle connection errors
                 die("Database connection failed: " . $e->getMessage());
             }
         }

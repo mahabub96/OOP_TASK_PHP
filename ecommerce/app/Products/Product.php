@@ -11,7 +11,6 @@ abstract class Product implements Purchasable{
     protected string $name;
     protected float $price;
 
-    // Fix: Correct error message typos in validation exceptions
     public function __construct(string $name, float $price){
         if($name === ''){
             throw new InvalidArgumentException('Product name cannot be empty');

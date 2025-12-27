@@ -4,8 +4,8 @@ namespace App\Auth;
 
 use App\Repositories\UserRepository;
 use App\Users\User;
-use App\Users\Admin; // Fix: Import Admin for role-based registration
-use App\Users\Customer; // Fix: Import Customer for role-based registration
+use App\Users\Admin;
+use App\Users\Customer;
 use RuntimeException;
 
 class AuthService
@@ -21,7 +21,6 @@ class AuthService
         }
     }
 
-    // Fix: Add register() to support user creation
     public function register(string $name, string $email, string $password, string $role = 'customer'): User
     {
         $role = strtolower($role);
@@ -55,7 +54,6 @@ class AuthService
         session_destroy();
     }
 
-    // Fix: Use existing repository method name `find` instead of non-existent `findById`
     public function user(): ?User
     {
         if (!isset($_SESSION['user_id'])) {

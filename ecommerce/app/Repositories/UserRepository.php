@@ -18,7 +18,7 @@ class UserRepository
     }
 
     /**
-     * Save user (register)
+     * Save user
      */
     public function save(User $user): void
     {
@@ -54,7 +54,7 @@ class UserRepository
     }
 
     /**
-     * Find user by email (login)
+     * Find user by email
      */
     public function findByEmail(string $email): ?User
     {
@@ -85,9 +85,6 @@ class UserRepository
         return $users;
     }
 
-    /**
-     * Hydrate database row into User object
-     */
     private function hydrate(array $row): User
     {
         $password = $row['password'];
@@ -101,7 +98,6 @@ class UserRepository
         };
     }
 
-    // Fix: Pass hashed flag to avoid double-hashing hydrated passwords
     private function createAdmin(array $row, string $password): User
     {
         $user = new Admin(
@@ -116,7 +112,6 @@ class UserRepository
         return $user;
     }
 
-    // Fix: Pass hashed flag to avoid double-hashing hydrated passwords
     private function createCustomer(array $row, string $password): User
     {
         $user = new Customer(

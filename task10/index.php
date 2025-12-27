@@ -9,7 +9,7 @@ require "App/Services/PaymentService.php";
 use App\Models\User;
 use App\Models\Product;
 use App\Controllers\User as PC;
-use App\Controllers\UserController as UC; // aliasing
+use App\Controllers\UserController as UC;
 use App\Services\EmailService;
 
 
@@ -19,7 +19,6 @@ $userController = new UC();
 $productController = new PC();
 $emailService = new EmailService();
 
-// Using fully qualified name (no use statement)
 $paymentService = new \App\Services\PaymentService();
 
 

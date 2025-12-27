@@ -1,5 +1,5 @@
-<?php 
-// Fix: Correct autoloader comparison operator and add missing semicolon
+<?php
+
 spl_autoload_register(function (string $class) {
     $prefix = 'App\\';
 
